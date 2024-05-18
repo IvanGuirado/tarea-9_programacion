@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
+import javax.swing.JOptionPane;
 import tarea9.DBDepartamentos;
 import tarea9.Departamentos;
 
@@ -18,7 +19,7 @@ public class Ventana extends javax.swing.JFrame {
      */
     public Ventana() {
         initComponents();
-        db=new DBDepartamentos();
+        db = new DBDepartamentos();
         db.conectar();
     }
 
@@ -236,32 +237,95 @@ public class Ventana extends javax.swing.JFrame {
         this.textoManager.setText("");
     }
 
+// Método que se ejecuta cuando el usuario hace clic en el botón "Insertar"
     private void buttonInsertarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonInsertarMouseClicked
-        // Obtiene el texto del campo texto.
-        Departamentos dept = new Departamentos(0,
+        //Obtiene el texto de los campos de texto y crea un objeto Departamentos
+        Departamentos dept = new Departamentos(Integer.parseInt(textoCodigo.getText()),
                 textoNombre.getText(),
                 Integer.parseInt(textoManager.getText()),
                 Integer.parseInt(textoLocalizacion.getText()));
-        db.insertar(dept);
-        // Llama al método insertar de la variable db.
-        // Establece el mensaje en el área de texto del GUI para informar
-        //al usuario del resultado de la inserción.
-        txtAreaDepartamentos.setText(db.mostrar());
+        // Llama al método insertar de la variable db
+        boolean insertado = db.insertar(dept);
+        // Establece el mensaje en el área de texto del GUI para informar 
+        //al usuario del resultado de la inserción
+        if (insertado) {
+            txtAreaDepartamentos.setText("Departamento insertado con éxito.\n"
+                    + db.mostrar());
+        } else {
+            txtAreaDepartamentos.setText("Error al insertar el departamento. "
+                    + "El código ya existe o hubo un error en la base de datos."
+                    + "\n" + db.mostrar());
+        }
         // Llama al método limpiar().
         limpiar();
     }//GEN-LAST:event_buttonInsertarMouseClicked
 
+    // Método que se ejecuta cuando el usuario hace clic en el botón "Modificar"
     private void buttonModificarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonModificarMouseClicked
 
+        // Obtiene el código del departamento del campo de texto y lo convierte 
+        //a entero
         int codigo = Integer.parseInt(this.textoCodigo.getText());
+        // Obtiene el nombre del departamento del campo de texto
         String nombre = textoNombre.getText();
+
+        // Si el campo nombre está vacío, busca el departamento en la base de 
+        //datos
         if (nombre.isEmpty()) {
             Departamentos dept = db.buscar(codigo);
             if (dept != null) {
+                // Si el departamento es encontrado, llena los campos de texto 
+                //con los datos del departamento
                 textoNombre.setText(dept.getNombre());
                 textoLocalizacion.setText("" + dept.getId_localizacion());
                 textoManager.setText("" + dept.getId_manager());
                 return;
+            } else {
+                // Si no se encuentra el departamento, muestra un mensaje de 
+                //error
+                txtAreaDepartamentos.setText("No se ha encontrado el departamento");
+                return;
+            }
+        }
+        //Crea un objeto Departamentos con los nuevos datos obtenidos de los 
+        //campos de texto
+        Departamentos dept = new Departamentos(codigo, textoNombre.getText(),
+                Integer.parseInt(textoLocalizacion.getText()),
+                Integer.parseInt(textoManager.getText()));
+
+        // Llama al método modificar de la variable db
+        boolean modificado = db.modificar(dept);
+        // Llama al método mostrar y actualiza el área de texto con los datos 
+        //actuales de los departamentos
+        if (modificado) {
+            txtAreaDepartamentos.setText("Departamento modificado con éxito.\n" 
+                    + db.mostrar());
+            
+        } else {
+            txtAreaDepartamentos.setText("Error al modificar el departamento.\n" 
+                    + db.mostrar());
+        }
+    }//GEN-LAST:event_buttonModificarMouseClicked
+    // Método que se ejecuta cuando el usuario hace clic en el botón "Borrar"
+    private void buttonBorrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonBorrarMouseClicked
+        //Obtiene el código ingresado en el campo de texto 'textoCodigo'
+        int codigo = Integer.parseInt(this.textoCodigo.getText());
+        
+        // Obtiene el nombre del departamento del campo de texto
+        String nombre = textoNombre.getText();
+        // Si el campo nombre está vacío, busca el departamento en la base de 
+        //datos
+        if (nombre.isEmpty()) {
+            Departamentos dept = db.buscar(codigo);
+            if (dept != null) {
+                // Si el departamento es encontrado, llena los campos de texto 
+                //con los datos del departamento
+                textoNombre.setText(dept.getNombre());
+                textoLocalizacion.setText("" + dept.getId_localizacion());
+                textoManager.setText("" + dept.getId_manager());
+                return;
+                // Si no se encuentra el departamento, muestra un mensaje de 
+                //error
             } else {
                 txtAreaDepartamentos.setText("No se ha encontrado el departamento");
                 return;
@@ -271,32 +335,31 @@ public class Ventana extends javax.swing.JFrame {
         Departamentos dept = new Departamentos(codigo, textoNombre.getText(),
                 Integer.parseInt(textoLocalizacion.getText()),
                 Integer.parseInt(textoManager.getText()));
-        db.modificar(dept);
-        //Llama al metodo mostrar().
-        String mensajeMostrar = db.mostrar();
-        this.txtAreaDepartamentos.setText(mensajeMostrar);
-    }//GEN-LAST:event_buttonModificarMouseClicked
+        int respuesta = JOptionPane.showConfirmDialog(null,
+                "¿Quieres borrar el departamento?",
+                "Confirmar borrado",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
 
-    private void buttonBorrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonBorrarMouseClicked
-//         Obtiene el código ingresado en el campo de texto 'textoCodigo'
-//        y lo convierte a un entero.
-
-//        int codigo = Integer.parseInt(this.textoCodigo.getText());
-//        //Llama al método borrar().
-//        db.borrar(codigo);
-//        // Establece el mensaje en el área de texto.
-//        this.txtAreaDepartamentos.setText(mensaje);
-//        //Llama al metodo mostrar().
-//        String mensajeMostrar = db.mostrar();
-//        this.txtAreaDepartamentos.setText(mensajeMostrar);
-//        limpiar();
+        //Llama al metodo borrar
+        if (respuesta == JOptionPane.YES_NO_OPTION) {
+            // Borra el departamento si la respuesta del usuario es afirmativa
+            db.borrar(dept);
+            JOptionPane.showMessageDialog(null, "Departamento borrado "
+                    + "correctamente.", "Borrado",
+                    JOptionPane.INFORMATION_MESSAGE);
+            this.txtAreaDepartamentos.setText(db.mostrar());
+            limpiar();
+        } else {
+            JOptionPane.showMessageDialog(null, "Borrado cancelado.",
+                    "Cancelado", JOptionPane.INFORMATION_MESSAGE);
+        }
     }//GEN-LAST:event_buttonBorrarMouseClicked
 
     private void buttonMostrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_buttonMostrarMouseClicked
         //Llama al metodo mostar().
         String mensaje = db.mostrar();
-        // Establece el mensaje en el área de texto del GUI para informar
-        //al usuario del resultado de la inserción.
+        // Establece el mensaje en el área de texto del GUI
         this.txtAreaDepartamentos.setText(mensaje);
 
     }//GEN-LAST:event_buttonMostrarMouseClicked
